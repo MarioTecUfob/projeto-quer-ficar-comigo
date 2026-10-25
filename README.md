@@ -36,7 +36,7 @@ Todo o CSS e o JavaScript estão dentro do arquivo HTML. Essa escolha facilita o
 ## Como executar
 
 1. Baixe ou clone este repositório.
-2. Localize o arquivo `quer_ficar_comigo.html`.
+2. Localize o arquivo `index.html`.
 3. Clique duas vezes no arquivo para abri-lo no navegador.
 
 Também é possível usar a extensão **Live Server** no Visual Studio Code:
