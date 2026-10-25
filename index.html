@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Permite usar corretamente acentos e caracteres especiais. -->
+  <meta charset="UTF-8">
+
+  <!-- Faz a página acompanhar a largura de celulares, tablets e computadores. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quer ficar comigo?</title>
+
+  <!-- O CSS está no próprio HTML para o projeto funcionar com apenas um arquivo. -->
+  <style>
+    /* Inclui bordas e preenchimentos no cálculo final das dimensões. */
+    * { box-sizing: border-box; }
+
+    /* Centraliza o cartão e cria o fundo em degradê. */
+    body {
+      min-height: 100vh;
+      /* A unidade dvh considera corretamente a barra do navegador em celulares. */
+      min-height: 100dvh;
+      margin: 0;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #562638;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,.85), transparent 22%),
+        radial-gradient(circle at 85% 80%, rgba(255,255,255,.65), transparent 24%),
+        linear-gradient(135deg, #ffe4ec, #ffc5d6 52%, #f4a8c0);
+    }
+
+    /* Corações decorativos espalhados pelo fundo. */
+    .coracoes { position: fixed; inset: 0; pointer-events: none; }
+    .coracoes span {
+      position: absolute;
+      color: rgba(255, 255, 255, .62);
+      animation: flutuar 6s ease-in-out infinite;
+    }
+    .coracoes span:nth-child(1) { left: 9%; top: 14%; font-size: 28px; }
+    .coracoes span:nth-child(2) { right: 12%; top: 18%; font-size: 45px; animation-delay: -2s; }
+    .coracoes span:nth-child(3) { left: 17%; bottom: 12%; font-size: 40px; animation-delay: -4s; }
+    .coracoes span:nth-child(4) { right: 20%; bottom: 10%; font-size: 25px; animation-delay: -1s; }
+
+    /* Animação suave aplicada aos corações. */
+    @keyframes flutuar {
+      0%, 100% { transform: translateY(0) rotate(-7deg); }
+      50% { transform: translateY(-18px) rotate(7deg); }
+    }
+
+    /* Área principal da página, com efeito de vidro fosco. */
+    .cartao {
+      width: min(90vw, 560px);
+      padding: clamp(32px, 7vw, 48px) clamp(20px, 6vw, 35px);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 28px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 24px 70px rgba(120, 38, 70, .22);
+      backdrop-filter: blur(14px);
+    }
+
+    .icone { font-size: 58px; margin-bottom: 10px; }
+    h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.08; }
+    p { margin: 16px 0 34px; color: #865166; font-size: 1.05rem; }
+
+    /* Organiza os dois botões lado a lado. */
+    .botoes { min-height: 70px; display: flex; align-items: center; justify-content: center; gap: 18px; }
+    button {
+      min-width: 120px;
+      min-height: 50px;
+      padding: 14px 25px;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      font-weight: 750;
+      transition: transform .2s, box-shadow .2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    /* Aparência individual dos botões. */
+    #sim { color: white; background: linear-gradient(135deg, #ef4778, #c92761); box-shadow: 0 10px 24px rgba(201,39,97,.30); }
+    #nao { color: #a52c55; background: #fff; box-shadow: 0 8px 20px rgba(110,37,65,.12); }
+    /* Remove o deslocamento vertical do hover para preservar os limites. */
+    #nao:hover { transform: none; }
+
+    /* Quando recebe esta classe, o botão Não pode circular livremente pela tela. */
+    #nao.fugindo {
+      position: fixed;
+      z-index: 10;
+      margin: 0;
+      visibility: visible;
+      opacity: 1;
+      touch-action: none;
+      will-change: left, top;
+      transition: left .18s ease-out, top .18s ease-out;
+    }
+
+    /* Reserva espaço para a mensagem sem deslocar o cartão após o clique. */
+    #mensagem { min-height: 28px; margin: 20px 0 0; font-weight: 700; color: #c92761; }
+
+    /* Ajustes específicos para telas de celular. */
+    @media (max-width: 480px) {
+      .cartao { width: calc(100vw - 28px); }
+      .icone { font-size: 48px; }
+      p { margin-bottom: 28px; }
+      .botoes { gap: 12px; }
+      button { min-width: 105px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Elementos apenas decorativos são ocultados de leitores de tela. -->
+  <div class="coracoes" aria-hidden="true"><span>♥</span><span>♥</span><span>♥</span><span>♥</span></div>
+
+  <!-- Conteúdo principal da página. -->
+  <main class="cartao">
+    <div class="icone">💌</div>
+    <h1>Quer ficar comigo?</h1>
+    <p>Pense com carinho antes de escolher…</p>
+
+    <div class="botoes">
+      <button id="sim" type="button">Sim 💖</button>
+      <button id="nao" type="button">Não</button>
+    </div>
+
+    <!-- aria-live faz leitores de tela anunciarem a mensagem quando ela surgir. -->
+    <div id="mensagem" aria-live="polite"></div>
+  </main>
+
+  <script>
+    // Busca os elementos HTML que serão controlados pelo JavaScript.
+    const botaoSim = document.querySelector('#sim');
+    const botaoNao = document.querySelector('#nao');
+    const mensagem = document.querySelector('#mensagem');
+
+    // Distância, em pixels, a partir da qual o botão começa a fugir.
+    const distanciaDeFuga = 165;
+
+    // Mantém um valor dentro de um limite mínimo e máximo.
+    // Isso impede que o botão desapareça para fora da tela.
+    function limitar(valor, minimo, maximo) {
+      return Math.max(minimo, Math.min(valor, maximo));
+    }
+
+    // Retorna a área realmente visível do documento. clientWidth e
+    // clientHeight desconsideram barras de rolagem e evitam cálculos maiores
+    // do que a tela disponível.
+    function obterAreaVisivel() {
+      return {
+        largura: document.documentElement.clientWidth,
+        altura: document.documentElement.clientHeight
+      };
+    }
+
+    // Faz uma verificação final e reposiciona o botão caso o navegador mude
+    // de tamanho ou algum pixel fique além da área visível.
+    function manterBotaoNaTela() {
+      if (!botaoNao.classList.contains('fugindo')) return;
+
+      const margem = 20;
+      const area = obterAreaVisivel();
+      const retangulo = botaoNao.getBoundingClientRect();
+      const maximoX = Math.max(margem, area.largura - retangulo.width - margem);
+      const maximoY = Math.max(margem, area.altura - retangulo.height - margem);
+
+      const xSeguro = limitar(retangulo.left, margem, maximoX);
+      const ySeguro = limitar(retangulo.top, margem, maximoY);
+
+      botaoNao.style.left = xSeguro + 'px';
+      botaoNao.style.top = ySeguro + 'px';
+    }
+
+    // Move o botão somente entre posições seguras dentro da tela.
+    function fugirDoCursor(cursorX, cursorY, forcarMovimento = false) {
+      const retangulo = botaoNao.getBoundingClientRect();
+      const centroX = retangulo.left + retangulo.width / 2;
+      const centroY = retangulo.top + retangulo.height / 2;
+      const distancia = Math.hypot(cursorX - centroX, cursorY - centroY);
+
+      if (!forcarMovimento && distancia > distanciaDeFuga) return;
+
+      const margem = 24;
+      const area = obterAreaVisivel();
+      const maximoX = Math.max(margem, area.largura - retangulo.width - margem);
+      const maximoY = Math.max(margem, area.altura - retangulo.height - margem);
+      const meioX = (margem + maximoX) / 2;
+      const meioY = (margem + maximoY) / 2;
+
+      // Todos estes pontos já consideram o tamanho do botão e uma margem de
+      // segurança. Portanto, nenhum deles fica fora da área visível.
+      const candidatos = [
+        { x: margem, y: margem },
+        { x: meioX, y: margem },
+        { x: maximoX, y: margem },
+        { x: margem, y: meioY },
+        { x: maximoX, y: meioY },
+        { x: margem, y: maximoY },
+        { x: meioX, y: maximoY },
+        { x: maximoX, y: maximoY }
+      ];
+
+      // Evita escolher novamente um ponto muito próximo da posição atual.
+      const posicoesDistantes = candidatos.filter(posicao =>
+        Math.hypot(posicao.x - retangulo.left, posicao.y - retangulo.top) > 60
+      );
+
+      // Entre os pontos seguros, escolhe o que fica mais longe do cursor.
+      const melhorPosicao = (posicoesDistantes.length ? posicoesDistantes : candidatos)
+        .map(posicao => ({
+          ...posicao,
+          distanciaDoCursor: Math.hypot(
+            cursorX - (posicao.x + retangulo.width / 2),
+            cursorY - (posicao.y + retangulo.height / 2)
+          )
+        }))
+        .reduce((melhor, atual) =>
+          atual.distanciaDoCursor > melhor.distanciaDoCursor ? atual : melhor
+        );
+
+      // Torna o botão independente do cartão e aplica a nova posição.
+      botaoNao.classList.add('fugindo');
+      botaoNao.style.left = melhorPosicao.x + 'px';
+      botaoNao.style.top = melhorPosicao.y + 'px';
+
+      // Confere novamente quando a animação terminar.
+      setTimeout(manterBotaoNaTela, 200);
+    }
+
+    // No computador, observa a aproximação do mouse.
+    document.addEventListener('pointermove', evento => {
+      if (evento.pointerType === 'mouse') {
+        fugirDoCursor(evento.clientX, evento.clientY);
+      }
+    });
+
+    // Garante a fuga quando o ponteiro entra diretamente sobre o botão.
+    botaoNao.addEventListener('pointerenter', evento => {
+      fugirDoCursor(evento.clientX, evento.clientY, true);
+    });
+
+    // Em celulares e tablets, move o botão quando a pessoa tenta tocá-lo.
+    botaoNao.addEventListener('pointerdown', evento => {
+      evento.preventDefault();
+      fugirDoCursor(evento.clientX, evento.clientY, true);
+    });
+
+    // Mesmo que um clique muito rápido seja registrado, ele é cancelado e o
+    // botão muda novamente de posição.
+    botaoNao.addEventListener('click', evento => {
+      evento.preventDefault();
+      fugirDoCursor(evento.clientX, evento.clientY, true);
+    });
+
+    // Mantém o botão visível se a janela for redimensionada ou o celular
+    // mudar da orientação vertical para a horizontal.
+    window.addEventListener('resize', manterBotaoNaTela);
+
+    // Mostra a mensagem quando o botão Sim é selecionado.
+    botaoSim.addEventListener('click', () => {
+      mensagem.textContent = 'Parabéns! Agora você é a segunda pessoa mais feliz do mundo. A primeira é Mário. 💖';
+    });
+  </script>
+</body>
+</html>
